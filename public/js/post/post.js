@@ -1,9 +1,6 @@
 class Post {
   constructor () {
       this.db = firebase.firestore()
-      const settings = { timestampsInSnapshots : true }
-      this.db.settings(settings)
-
   }
 
   crearPost (uid, emailUser, titulo, descripcion, imagenLink, videoLink) {
@@ -24,7 +21,24 @@ return this.db.collection('post').add({
   }
 
   consultarTodosPost () {
-    
+    this.db.collection('post').onSnapshot(querySnapshot => {
+        $('#post').empty()
+        if (querySnapshot.empty) {
+          $('#post').append(this.obtenerTemplatePostVacio())
+        } else {
+          querySnapshot.forEach(post => {
+            let postHtml = this.obtenerPostTemplate(
+              post.data().autor,
+              post.data().titulo,
+              post.data().descripcion,
+              post.data().videoLink,
+              post.data().imagenLink,
+              Utilidad.obtenerFecha(post.data().fecha.toDate())
+            )
+            $('#post').append(postHtml)
+          })
+        }
+      })
   }
 
   consultarPostxUsuario (emailUser) {
